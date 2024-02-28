@@ -39,6 +39,7 @@ class Bot:
         *add <contact name> <phone number>- adds record if contact name is not present, adds phone if contact name is present and phone number differs from other \n
         *change <contact name> <old phone> <new phone>- changes contact phone by name \n
         *delete <contact name>- delete contact or delete <contact name> <phone> - delete specified phone for the contact \n
+        *set_birthday <contact name> <birthday date>
         *phone <contact name> - get contact phones by name \n
         show all - prints contact book \n
         *search <substring> - filter by name letters or phone number sequence \n
@@ -128,6 +129,7 @@ class Bot:
             'add': set_contact,
             'change': update_phone,
             'phone' : get_phone,
+            'set_birthday' : set_birthday,
             'delete' : remove,
             'show all': display,
             'search': filter_contacts,

@@ -1,12 +1,11 @@
 from collections import UserDict
 from datetime import datetime
+from db_connector import FileConnectorFactory
 from dateutil.parser import parse
-import pickle
 import re
-import os.path
 
 # If no filename for saving address book data provided 
-FILENAME = "./BotAssistant/res/phone_book.dat"
+
 ROWS_PER_PAGE = 10
 
 class Field:
@@ -134,18 +133,22 @@ class AddressBook(UserDict):
                 #print rows on the page
                 print(row)
 
-    def save_address_book(self, filename = FILENAME):
-        with open (filename, "wb") as file:
-            pickle.dump(self, file)
+    def save_address_book(self):
+        # can be rewriten by adding needed file type to FileConnectorFactory
+        serialization_type = FileConnectorFactory().get_connector('binary')
+        
+        # Can be specified parameter for file storate
+        serialization_type.save_data()
 
-    def recover_address_book(self, filename = FILENAME):
-        if os.path.isfile(filename):
-            with open(filename, 'rb') as file:            
-                content = pickle.load(file)
-            return content
+    def recover_address_book(self):
+        deserialization_type = FileConnectorFactory().get_connector('binary')
+        
+        # Can be specified parameter for file storate
+        data = deserialization_type.retreive_data()
+        if data:
+            return data
         else:
             return AddressBook()
-        return content
 
     def search_records(self, text: str) -> dict:
         search_results = {}
