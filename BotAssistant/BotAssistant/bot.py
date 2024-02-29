@@ -38,8 +38,9 @@ class Bot:
         hello - prints greeting \n
         *add <contact name> <phone number>- adds record if contact name is not present, adds phone if contact name is present and phone number differs from other \n
         *change <contact name> <old phone> <new phone>- changes contact phone by name \n
-        *delete <contact name>- delete contact or delete <contact name> <phone> - delete specified phone for the contact \n
-        *set_birthday <contact name> <birthday date>
+        *delete <contact name> - delete contact or delete <contact name> <phone> - delete specified phone for the contact \n
+        *set_birthday <contact name> <birthday date> - adds birthday to specified contact \n
+        *days_to_birthday <number of days> - shows all contacts that have birthday in specified number of days \n
         *phone <contact name> - get contact phones by name \n
         show all - prints contact book \n
         *search <substring> - filter by name letters or phone number sequence \n
@@ -62,6 +63,13 @@ class Bot:
             record.add_phone(commands[2])
             self.phone_book.add_record(record)            
             return f"Contact {commands[1]} {commands[2]} is added to DBMS"
+        
+    #Adds birthday to the existent contact
+    @input_error
+    def provide_birthday(self, commands)->str:
+        if commands[1] in self.phone_book:
+            self.phone_book[commands[1]].add_birthday(commands[2])
+            return f'Birthday date {commands[2]} was added(changed) for contact {commands[1]}'
 
     # Update phone for existing contact by its name (command: change)
     @input_error
@@ -107,6 +115,15 @@ class Bot:
             print(f"No contacts found that match criteria {commands[1]}")
         else:
             address_book.print_book()
+
+    # Filter contacts that have birthday in specified amount of days
+    @input_error
+    def show_birthdays(self, commands):
+        contact_birthdays = self.phone_book.show_birthday(commands[1])
+        if not contact_birthdays:
+            print(f"No contacts with birthdays in {commands[1]} days")
+        else:
+            contact_birthdays.print_book()
     
     # Print all contacts in the data base (command: show all)
     def display(self):
@@ -129,7 +146,8 @@ class Bot:
             'add': set_contact,
             'change': update_phone,
             'phone' : get_phone,
-            'set_birthday' : set_birthday,
+            'set_birthday' : provide_birthday,
+            'days_to_birthday': show_birthdays,
             'delete' : remove,
             'show all': display,
             'search': filter_contacts,
@@ -151,11 +169,9 @@ class Bot:
                 case 'exit':
                     print("Good bye!")
                     self.get_handler(commands[0])(self)
-                case 'hello':
-                    print(self.get_handler(commands[0])(self))
-                case 'help':
-                    print(self.get_handler(commands[0])(self))
-                case 'add' | 'change' | 'phone':
+                case 'hello' | 'help':
+                    print(self.get_handler(commands[0])(self))                
+                case 'add' | 'change' | 'phone' | 'set_birthday':
                     print(self.get_handler(commands[0])(self, commands))            
                 case 'show':
                     show_all = " ".join(commands).lower()
@@ -165,7 +181,7 @@ class Bot:
                         print("Incorrect <show all> command. Please, re-enter.")
                 case 'delete':
                     print(self.get_handler(commands[0])(self, commands))
-                case 'search':
+                case 'search' | 'days_to_birthday':
                     self.get_handler(commands[0])(self, commands)
                 case _:
                     print("Incorrect command, please provide the command from the list in command prompt") 

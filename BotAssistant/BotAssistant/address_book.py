@@ -4,8 +4,8 @@ from db_connector import FileConnectorFactory
 from dateutil.parser import parse
 import re
 
-# If no filename for saving address book data provided 
 
+# Rows per page for printing pages
 ROWS_PER_PAGE = 10
 
 class Field:
@@ -37,7 +37,7 @@ class Field:
    
 class Birthday(Field):
     def is_valid(self, birthday)->bool:
-        #check if it is possible to convert exact string (fuzzy = False) to date
+        # Check if it is possible to convert exact string (fuzzy = False) to date
         try:
             birthday_date = parse(birthday, fuzzy=False)
             print(birthday_date)
@@ -48,7 +48,9 @@ class Birthday(Field):
 
 class Name(Field):
     pass
-    
+
+class Notes(Field):
+    pass    
 
 class Phone(Field):
     
@@ -58,29 +60,44 @@ class Phone(Field):
    
 class Record:
     def __init__(self, name, birthday:Birthday=""):
-        self.name = Name(name)
+        self.name = Name(name)       
         if birthday:
             self.birthday = Birthday(birthday)
         else: 
             self.birthday = None
         self.phones = []
+        self.note = {}
 
     def add_phone(self, phone):
         phone = Phone(phone)        
         self.phones.append(phone)
 
-    # days_to_birthday
+    def add_note(self, note, tag):
+        pass
+        #self.note[note] = tag
+
+    def add_birthday(self, birthday):
+        self.birthday = Birthday(birthday)        
+
+    # Calculate days to birthday
     def days_to_birthday(self)->int:
-        birthday = self.birthday.value
-        current_date = datetime.now().date()
-        birthday_date_this_year = parse(birthday, fuzzy=False).replace(year = datetime.now().year).date()
-        delta = birthday_date_this_year - current_date
-        # if birthdate in future current year
-        if delta.days>0:
-            return delta.days
+        if self.birthday:
+            birthday = self.birthday.value
         else: 
-            # if birthdate in current year has passed (calculate days to next year's date)
-            return (birthday_date_this_year.replace(year=current_date.year+1) - current_date).days
+            birthday = None
+        if birthday:        
+            current_date = datetime.now().date()
+            birthday_date_this_year = parse(birthday, fuzzy=False).replace(year = datetime.now().year).date()
+            delta = birthday_date_this_year - current_date
+            # If birthdate in future current year
+            if delta.days>0:
+                return delta.days
+            else: 
+                # If birthdate in current year has passed (calculate days to next year's date)
+                return (birthday_date_this_year.replace(year=current_date.year+1) - current_date).days
+        else:
+            return None
+    
                 
     
     def edit_phone(self, phone_old, phone_new):
@@ -124,13 +141,13 @@ class AddressBook(UserDict):
     # print AddressBook using pagination
     def print_book(self):
         cnt = 1
-        #getting rows_per_page
+        # Getting rows_per_page
         for rows in self:
             print(f"page {cnt}")
-            #pages count
+            # Pages count
             cnt+=1
             for row in rows:
-                #print rows on the page
+                # Print rows on the page
                 print(row)
 
     def save_address_book(self):
@@ -138,17 +155,28 @@ class AddressBook(UserDict):
         serialization_type = FileConnectorFactory().get_connector('binary')
         
         # Can be specified parameter for file storate
-        serialization_type.save_data()
+        serialization_type.save_data(self)
 
     def recover_address_book(self):
         deserialization_type = FileConnectorFactory().get_connector('binary')
         
         # Can be specified parameter for file storate
         data = deserialization_type.retreive_data()
+        print(type(data))
         if data:
             return data
         else:
             return AddressBook()
+        
+    # Get address book with all contacts, that have birthdays in <days> days
+    def show_birthday(self, days:int):        
+        contacts = AddressBook()
+        for name, record in self.data.items():
+            if record.days_to_birthday():
+                if record.days_to_birthday() - int(days) == 0:
+                    contacts[name] = record
+
+        return contacts
 
     def search_records(self, text: str) -> dict:
         search_results = {}

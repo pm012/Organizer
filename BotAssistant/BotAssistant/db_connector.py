@@ -15,9 +15,9 @@ class FileConnector(ABC):
 class BinaryFileDBConnector(FileConnector):
     FILENAME = "./BotAssistant/BotAssistant/res/phone_book.dat"
 
-    def save_data(self, filename=FILENAME):
+    def save_data(self, address_book, filename=FILENAME):
         with open (filename, "wb") as file:
-            pickle.dump(self, file)
+            pickle.dump(address_book, file)
     
     def retreive_data(self, filename=FILENAME):
         if os.path.isfile(filename):
