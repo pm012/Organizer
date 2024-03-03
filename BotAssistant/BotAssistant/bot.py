@@ -16,35 +16,35 @@ class Command(ABC):
 
     # Add contact to the data base (command: add)
     @abstractclassmethod    
-    def set_contact(self, commands)->str:    
+    def set_contact(self, *args, **kwargs)->str:    
         pass
         
     #Adds birthday to the existent contact
     @abstractclassmethod
-    def provide_birthday(self, commands)->str:
+    def provide_birthday(self, *args)->str:
         pass        
     
     @abstractclassmethod
-    def update_phone(self, commands)->str:    
+    def update_phone(self, *args)->str:    
         pass
 
     # Get contact phone by name (command: phone)
     @abstractclassmethod
-    def get_phone(self, commands)->str:
+    def get_phone(self, *args)->str:
         pass
     
     @abstractclassmethod
-    def remove(self, commands)->str:
+    def remove(self, *args)->str:
         pass
     
-    # Filter by phone or phone number
+    # Filter by contact name or phone number
     @abstractclassmethod
-    def filter_contacts(self, commands)->str:
+    def filter_contacts(self, *args)->str:
         pass
 
     # Filter contacts that have birthday in specified amount of days
     @abstractclassmethod
-    def show_birthdays(self, commands):
+    def show_birthdays(self, *args):
         pass
     
     # Print all contacts in the data base (command: show all)
@@ -58,18 +58,18 @@ class Command(ABC):
         pass
 
     @abstractclassmethod
-    def add_note(self, commands):
+    def add_note(self, *args, **kwargs):
         pass
 
-    def edit_note(self, commands):
-        pass
-
-    @abstractclassmethod
-    def delete_note(self, commands):
+    def edit_note(self, *args):
         pass
 
     @abstractclassmethod
-    def update_tag(self, commands):
+    def delete_note(self, *args):
+        pass
+
+    @abstractclassmethod
+    def update_tag(self, *args):
         pass
     
 
