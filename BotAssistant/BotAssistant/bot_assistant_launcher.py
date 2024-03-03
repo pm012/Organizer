@@ -1,6 +1,6 @@
-from bot import Bot
+from bot import BotCLI
 def main():
-    bot = Bot()
+    bot = BotCLI()
     bot.start_bot()
 
 if __name__ == '__main__':
