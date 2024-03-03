@@ -1,7 +1,82 @@
 from address_book import AddressBook, Record
+from abc import ABC, abstractclassmethod
 
-class Bot:
-    def __init__(self, file_DB=None):    
+class Command(ABC):
+    @abstractclassmethod
+    def answer_greeting():
+        pass
+    @abstractclassmethod
+    def answer_greeting(self):
+        pass
+    
+    # Greetings (command: help)
+    @abstractclassmethod
+    def help_info(self):
+        pass
+
+    # Add contact to the data base (command: add)
+    @abstractclassmethod    
+    def set_contact(self, commands)->str:    
+        pass
+        
+    #Adds birthday to the existent contact
+    @abstractclassmethod
+    def provide_birthday(self, commands)->str:
+        pass        
+    
+    @abstractclassmethod
+    def update_phone(self, commands)->str:    
+        pass
+
+    # Get contact phone by name (command: phone)
+    @abstractclassmethod
+    def get_phone(self, commands)->str:
+        pass
+    
+    @abstractclassmethod
+    def remove(self, commands)->str:
+        pass
+    
+    # Filter by phone or phone number
+    @abstractclassmethod
+    def filter_contacts(self, commands)->str:
+        pass
+
+    # Filter contacts that have birthday in specified amount of days
+    @abstractclassmethod
+    def show_birthdays(self, commands):
+        pass
+    
+    # Print all contacts in the data base (command: show all)
+    @abstractclassmethod
+    def display(self):
+        pass
+
+    # Save the data to file and stop working with bot
+    @abstractclassmethod
+    def quit_bot(self):
+        pass
+
+    @abstractclassmethod
+    def add_note(self, commands):
+        pass
+
+    def edit_note(self, commands):
+        pass
+
+    @abstractclassmethod
+    def delete_note(self, commands):
+        pass
+
+    @abstractclassmethod
+    def update_tag(self, commands):
+        pass
+    
+
+
+
+class BotCLI(Command):
+    def __init__(self):    
         self.phone_book = AddressBook()    
         self.phone_book = self.phone_book.recover_address_book()
 
@@ -36,14 +111,18 @@ class Bot:
     def help_info(self):
         return """Commands list:\n
         hello - prints greeting \n
-        *add <contact name> <phone number>- adds record if contact name is not present, adds phone if contact name is present and phone number differs from other \n
-        *change <contact name> <old phone> <new phone>- changes contact phone by name \n
-        *delete <contact name> - delete contact or delete <contact name> <phone> - delete specified phone for the contact \n
-        *set_birthday <contact name> <birthday date> - adds birthday to specified contact \n
-        *days_to_birthday <number of days> - shows all contacts that have birthday in specified number of days \n
-        *phone <contact name> - get contact phones by name \n
+        add <contact name> <phone number>- adds record if contact name is not present, adds phone if contact name is present and phone number differs from other \n
+        change <contact name> <old phone> <new phone>- changes contact phone by name \n
+        delete <contact name> - delete contact or delete <contact name> <phone> - delete specified phone for the contact \n
+        set_birthday <contact name> <birthday date> - adds birthday to specified contact \n
+        days_to_birthday <number of days> - shows all contacts that have birthday in specified number of days \n
+        set_note <contact name> <note> <tag (optional)>  - adds note for the contact (if exists overwrite) \n
+        update_note <contact name> <note> - updates note or adds new one if not present (if updated, tag ramains the same) \n
+        delete_note <contact_name> <note> - removes note for specified contact \n
+        update_tag <contact_name> <note> <new_tag> updates tag for the specified note \n
+        phone <contact name> - get contact phones by name \n
         show all - prints contact book \n
-        *search <substring> - filter by name letters or phone number sequence \n
+        search <substring> - filter by name letters or phone number sequence \n
         exit, good bye, close - saves changes to database and exit \n
         """
 
@@ -92,6 +171,7 @@ class Bot:
             raise ValueError(f"Contact with such name ({commands[1]}) not present in Address Book.")
         return f" The contact {commands[1]} has phone numbers: {[str(phone) for phone in self.phone_book.find(commands[1]).phones]}"
     # Delete phone from contact's phone list
+
     @input_error
     def remove(self, commands)->str:
         if commands[1] in self.phone_book:
@@ -107,9 +187,10 @@ class Bot:
 
         return f" The phone {commands[2]} has been removed from phone numbers of {commands[1]}"
     
-    # Filter by phone or phone number
+    # Filter by name or phone number 
     @input_error
     def filter_contacts(self, commands)->str:
+        # TODO add search by note
         address_book =  self.phone_book.search_records(commands[1])
         if not address_book:
             print(f"No contacts found that match criteria {commands[1]}")
@@ -137,6 +218,37 @@ class Bot:
         self.phone_book.save_address_book()
         quit()
 
+
+    @input_error
+    def add_note(self, commands):
+        if commands[1] in self.phone_book:
+            if len(commands) > 2:
+                self.phone_book[commands[1]].add_note(commands[2], tag=commands[3])
+                return f'Note {commands[2]} with tag {commands[3]} was added(changed) for contact {commands[1]}'
+            elif len(commands) > 1:
+                self.phone_book[commands[1]].add_note(commands[2])
+                return f'Note {commands[2]} with empty tag was added(changed) for contact {commands[1]}'
+
+    @input_error
+    def edit_note(self, commands):
+        if commands[1] in self.phone_book:
+            self.phone_book[commands[1]].edit_note(commands[2], commands[3])
+            return f'Updated tag {commands[2]} with tag {commands[3]} for contact {commands[1]}'
+
+    @input_error
+    def delete_note(self, commands):
+        if commands[1] in self.phone_book:
+            self.phone_book[commands[1]].delete_note(commands[2])
+            return f'Deleted note {commands[2]}  for contact {commands[1]}'
+
+    @input_error
+    def update_tag(self, commands):
+        if commands[1] in self.phone_book:
+            self.phone_book[commands[1]].edit_tag(commands[2], commands[3])
+            return f'Updated tag {commands[3]} for  note {commands[3]} for contact {commands[1]}'
+    
+
+
     # Handler function
     def get_handler(self, command):    
         return self.COMMANDS[command]   
@@ -147,6 +259,10 @@ class Bot:
             'change': update_phone,
             'phone' : get_phone,
             'set_birthday' : provide_birthday,
+            'set_note' : add_note,
+            'update_note' : edit_note,
+            'delete_note' : delete_note,
+            'update_tag' : update_tag,
             'days_to_birthday': show_birthdays,
             'delete' : remove,
             'show all': display,
@@ -171,7 +287,7 @@ class Bot:
                     self.get_handler(commands[0])(self)
                 case 'hello' | 'help':
                     print(self.get_handler(commands[0])(self))                
-                case 'add' | 'change' | 'phone' | 'set_birthday':
+                case 'add' | 'change' | 'phone' | 'set_birthday' | 'set_note' | 'update_note' | 'delete_note' | 'update_tag':
                     print(self.get_handler(commands[0])(self, commands))            
                 case 'show':
                     show_all = " ".join(commands).lower()

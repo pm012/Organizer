@@ -66,15 +66,31 @@ class Record:
         else: 
             self.birthday = None
         self.phones = []
-        self.note = {}
+        self.notes = {}
 
     def add_phone(self, phone):
         phone = Phone(phone)        
         self.phones.append(phone)
 
-    def add_note(self, note, tag):
-        pass
-        #self.note[note] = tag
+    def add_note(self, note, tag=""):
+        if note not in self.notes:
+            self.notes[note] = tag
+
+    def edit_note(self, note_old, note_new):        
+        if note_old in self.notes:
+            self.notes[note_new] = self.notes[note_old]
+            self.notes.pop(note_old)
+        else: 
+            raise ValueError(f"Note {note_old} not found")
+
+    def edit_tag(self, note, tag):
+        if (note in self.notes) and (self.notes[tag] != tag):
+            self.notes[note] = tag
+        else:
+            raise ValueError(f"Note {note} not found")
+
+    def delete_note(self, note):
+        self.notes.pop(note)
 
     def add_birthday(self, birthday):
         self.birthday = Birthday(birthday)        
