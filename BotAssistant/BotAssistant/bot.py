@@ -2,9 +2,7 @@ from address_book import AddressBook, Record
 from abc import ABC, abstractclassmethod
 
 class Command(ABC):
-    @abstractclassmethod
-    def answer_greeting():
-        pass
+    
     @abstractclassmethod
     def answer_greeting(self):
         pass
