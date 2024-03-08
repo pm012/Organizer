@@ -177,8 +177,7 @@ class AddressBook(UserDict):
         deserialization_type = FileConnectorFactory().get_connector('binary')
         
         # Can be specified parameter for file storate
-        data = deserialization_type.retreive_data()
-        print(type(data))
+        data = deserialization_type.retreive_data()       
         if data:
             return data
         else:

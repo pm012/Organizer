@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "botassistant"
+version = "0.1.0"
+description = "The application works with CLI enterface as Bot. It helps to organize data and manage contacts."
+authors = ["Serhii Kroshka <pm012@ukr.net>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "3.12.2"
+python-dateutil = "2.8.2"
+six = "1.16.0"
+
+[tool.poetry.dev-dependencies]
+python-dateutil = "2.8.2"
+six = "1.16.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
